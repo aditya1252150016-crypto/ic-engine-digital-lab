@@ -1,0 +1,4 @@
+Speed_rpm,Torque_Nm,FuelFlow_kg_h,CoolingWater_kg_s,CoolingIn_C,CoolingOut_C,IP_kW_optional
+1000,10,0.7,0.08,25,31,
+1200,15,0.9,0.09,25,33,
+1400,20,1.2,0.1,25,35,
