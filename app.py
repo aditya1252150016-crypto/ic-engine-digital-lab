@@ -1,4 +1,4 @@
-import math
+-import math
 from datetime import datetime
 from io import BytesIO
 
@@ -37,6 +37,50 @@ with st.sidebar:
     test_name = st.text_input("Experiment / test name", "IC Engine Performance Test")
     operator = st.text_input("Student / team (optional)", "")
     test_date = st.date_input("Test date", value=datetime.today().date())
+        st.divider()
+    st.subheader("Engine Specifications")
+
+    bore_mm = st.number_input(
+        "Bore diameter (mm)",
+        min_value=1.0,
+        value=80.0,
+        step=1.0
+    )
+
+    stroke_mm = st.number_input(
+        "Stroke length (mm)",
+        min_value=1.0,
+        value=110.0,
+        step=1.0
+    )
+
+    num_cylinders = st.number_input(
+        "Number of cylinders",
+        min_value=1,
+        value=1,
+        step=1
+    )
+
+    compression_ratio = st.number_input(
+        "Compression ratio",
+        min_value=1.0,
+        value=16.0,
+        step=0.5
+    )
+
+    max_power_kw = st.number_input(
+        "Maximum engine power (kW)",
+        min_value=0.1,
+        value=3.68,
+        step=0.1
+    )
+
+    max_speed_rpm = st.number_input(
+        "Maximum engine speed (RPM)",
+        min_value=1,
+        value=1500,
+        step=100
+    )
     st.divider()
     st.subheader("Calculation assumptions")
     fuel_cv = st.number_input("Fuel calorific value (kJ/kg)", min_value=1.0, value=44000.0, step=100.0)
@@ -88,16 +132,39 @@ with tabs[0]:
         if ip_method == "Measured/calculated IP (kW)":
             indicated_power_kw = st.number_input("Indicated power (kW)", min_value=0.0, value=8.0, step=0.5)
         elif ip_method.startswith("IMEP-based"):
-            imep_bar = st.number_input("Indicated mean effective pressure (bar)", min_value=0.0, value=6.0, step=0.5)
-            displacement_l = st.number_input("Total swept volume (L)", min_value=0.001, value=0.5, step=0.1)
-            cylinders = st.number_input("Number of cylinders", min_value=1, value=1, step=1)
-            strokes = 4 if "4-stroke" in ip_method else 2
-            # IP = p * Vd * (N / (2*60)) for 4-stroke, or p*Vd*(N/60) for 2-stroke.
-            indicated_power_kw = (imep_bar * 1e5) * (displacement_l / 1000.0) * cylinders * (speed / (60.0 * strokes / 2.0)) / 1000.0
-        else:
-            indicated_power_kw = None
-            st.caption("IP requires an indicated-power measurement or suitable cylinder/IMEP data.")
+        imep_bar = st.number_input(
+            "Indicated mean effective pressure (bar)",
+            min_value=0.0,
+            value=6.0,
+            step=0.5
+        )
 
+        displacement_l = (
+            3.141592653589793
+            * (bore_mm / 1000.0) ** 2
+            / 4
+            * (stroke_mm / 1000.0)
+            * num_cylinders
+            * 1000.0
+        )
+
+        st.metric(
+            "Calculated engine displacement",
+            f"{displacement_l:.3f} L"
+        )
+
+        strokes = 4 if "4-stroke" in ip_method else 2
+
+        indicated_power_kw = (
+            (imep_bar * 1e5)
+            * (displacement_l / 1000.0)
+            * (speed / (60.0 * (strokes / 2.0)))
+            / 1000.0
+        )
+            else:
+        indicated_power_kw = None
+        st.caption("IP requires an indicated-power measurement or suitable cylinder/IMEP data.")
+        
     if st.button("Calculate performance", type="primary", use_container_width=True):
         errors = []
         if speed <= 0:
