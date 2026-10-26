@@ -37,7 +37,7 @@ with st.sidebar:
     test_name = st.text_input("Experiment / test name", "IC Engine Performance Test")
     operator = st.text_input("Student / team (optional)", "")
     test_date = st.date_input("Test date", value=datetime.today().date())
-        st.divider()
+    st.divider()
     st.subheader("Engine Specifications")
 
     bore_mm = st.number_input(
